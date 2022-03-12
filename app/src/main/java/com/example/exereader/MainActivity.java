@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity{
         esModoNoche = comprobarModoNoche(getApplicationContext());
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,R.id.nav_ayuda,R.id.nav_sugerencias,R.id.nav_creditos)
+                R.id.nav_home, R.id.nav_detalles, R.id.nav_opciones,R.id.nav_ayuda,R.id.nav_sugerencias,R.id.nav_creditos)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -108,8 +108,8 @@ public class MainActivity extends AppCompatActivity{
 
         if(navigationView != null){
             Menu menuNav=navigationView.getMenu();
-            MenuItem info = menuNav.findItem(R.id.nav_gallery);
-            MenuItem opc = menuNav.findItem(R.id.nav_slideshow);
+            MenuItem info = menuNav.findItem(R.id.nav_detalles);
+            MenuItem opc = menuNav.findItem(R.id.nav_opciones);
             info.setEnabled(false);
             opc.setEnabled(false);
 

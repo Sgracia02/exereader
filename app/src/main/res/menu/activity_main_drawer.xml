@@ -13,13 +13,13 @@
         <menu>
             <group>
                 <item
-                    android:id="@+id/nav_gallery"
+                    android:id="@+id/nav_detalles"
                     android:checkable="false"
                     android:enabled="false"
                     android:icon="@drawable/icon_info"
                     android:title="@string/menu_gallery" />
                 <item
-                    android:id="@+id/nav_slideshow"
+                    android:id="@+id/nav_opciones"
                     android:checkable="false"
                     android:enabled="false"
                     android:icon="@drawable/icon_options"
