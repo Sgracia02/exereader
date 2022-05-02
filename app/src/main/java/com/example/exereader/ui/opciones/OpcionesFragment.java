@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,6 +34,7 @@ public class OpcionesFragment extends Fragment implements View.OnClickListener {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         View root = inflater.inflate(R.layout.fragment_opciones, container, false);
 
         nombre=root.findViewById(R.id.nombre);
@@ -179,5 +182,10 @@ public class OpcionesFragment extends Fragment implements View.OnClickListener {
                 archivos[i].delete();
             }
         }
+    }
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.findItem(R.id.ordenar).setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 }

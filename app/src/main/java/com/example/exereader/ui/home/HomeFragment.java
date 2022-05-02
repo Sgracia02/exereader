@@ -5,14 +5,16 @@ import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
+import android.webkit.WebViewFragment;
 import android.widget.Button;
+import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -26,6 +28,7 @@ import com.example.exereader.ui.FileChooser;
 import com.example.exereader.ui.FragmentListaVacia;
 import com.example.exereader.Proyectos;
 import com.example.exereader.R;
+import com.example.exereader.ui.FragmentWebview;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,6 +52,7 @@ public class HomeFragment extends Fragment{
     String titulo="", autor="";
     private static final int REQUEST_PERMISSION_CODE = 5656;
 
+    public boolean menuOrdenar;
     public HomeFragment() {
     }
 
@@ -61,6 +65,7 @@ public class HomeFragment extends Fragment{
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        menuOrdenar=true;
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         //Hacemos visible la AppBar
         ((AppCompatActivity) getActivity()).getSupportActionBar().show();
@@ -85,7 +90,7 @@ public class HomeFragment extends Fragment{
 
         if(lista.size() > 0){
             adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
-            adaptador.cambiarOrden();
+            adaptador.cambiarOrden("date");
             proyectos.setAdapter(adaptador);
         }
 
@@ -104,10 +109,51 @@ public class HomeFragment extends Fragment{
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             FragmentListaVacia fragmentListaVacia = FragmentListaVacia.newInstance("","");
+            menuOrdenar=false;
             fragmentTransaction.replace(R.id.nav_host_fragment, fragmentListaVacia);
             fragmentTransaction.commit();
         }
         return root;
+    }
+
+    /*@Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.findItem(R.id.ordenar).setVisible(true);
+        super.onCreateOptionsMenu(menu, inflater);
+    }*/
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        if(menuOrdenar){
+            menu.findItem(R.id.ordenar).setVisible(true);
+        }else {
+            menu.findItem(R.id.ordenar).setVisible(false);
+        }
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.ordFecha:
+                Toast.makeText(getContext(),"opcion fecha",Toast.LENGTH_LONG).show();
+                adaptador.cambiarOrden("date");
+                proyectos.setAdapter(adaptador);
+                break;
+            case R.id.ordAutor:
+                Toast.makeText(getContext(),"opcion autor",Toast.LENGTH_LONG).show();
+                adaptador.cambiarOrden("author");
+                proyectos.setAdapter(adaptador);
+                break;
+            case R.id.ordTitulo:
+                Toast.makeText(getContext(),"opcion titulo",Toast.LENGTH_LONG).show();
+                adaptador.cambiarOrden("title");
+                proyectos.setAdapter(adaptador);
+                break;
+        }
+
+
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -156,7 +202,7 @@ public class HomeFragment extends Fragment{
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             FileChooser fileChooser = FileChooser.newInstance("","");
-
+            fileChooser.hideMenu=true;
             fragmentTransaction.replace(R.id.nav_host_fragment, fileChooser);
             fragmentTransaction.commit();
         }

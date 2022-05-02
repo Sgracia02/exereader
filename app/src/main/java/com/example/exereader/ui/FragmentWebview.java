@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -13,12 +14,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.example.exereader.BuildConfig;
 import com.example.exereader.R;
@@ -33,17 +37,20 @@ public class FragmentWebview extends Fragment {
     private WebView webview;
     private File paginaWeb;
 
+    public static boolean hideMenu;
     /* Constructores */
     public FragmentWebview() {
     }
 
     public FragmentWebview(File file) {
         this.paginaWeb = file;
+        setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+       hideMenu=true;
         View view = inflater.inflate(R.layout.fragment_webview, container, false);
 
         //Ocultamos ActionBar para que el index se muestre a pantalla completa.
@@ -142,5 +149,26 @@ public class FragmentWebview extends Fragment {
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
         return view;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        super.onCreate(savedInstanceState);
+    }
+
+   /* @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.findItem(R.id.ordenar).setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
+    }*/
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        if(hideMenu){
+            menu.findItem(R.id.ordenar).setVisible(false);
+            hideMenu=false;
+        }
+        super.onPrepareOptionsMenu(menu);
     }
 }

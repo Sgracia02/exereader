@@ -43,4 +43,7 @@
     <string name="nav_sugerencias">Sugerencias</string>
     <string name="cont">No hay contenidos</string>
     <string name="no_info">-</string>
+    <string name="ordFecha">Fecha</string>
+    <string name="ordAutor">Autor</string>
+    <string name="ordTitulo">Título</string>
 </resources>

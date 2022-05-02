@@ -2,11 +2,14 @@ package com.example.exereader.ui.sugerencias;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.exereader.R;
@@ -26,6 +29,7 @@ public class SugerenciasFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         View view = inflater.inflate(R.layout.fragment_sugerencias, container, false);
         web = view.findViewById(R.id.webV);
         web.setWebViewClient(new WebViewClient());
@@ -38,4 +42,10 @@ public class SugerenciasFragment extends Fragment {
         }
         return view;
     }
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.findItem(R.id.ordenar).setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
 }

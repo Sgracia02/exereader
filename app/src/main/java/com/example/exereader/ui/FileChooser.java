@@ -9,9 +9,12 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -49,7 +52,7 @@ public class FileChooser extends Fragment {
     private WebView webView;
     private String titulo="";
     String idioma =  Locale.getDefault().getLanguage(); // es
-
+    public static boolean hideMenu;
 
     public static FileChooser newInstance(String uri, String param2) {
         FileChooser fragment = new FileChooser();
@@ -61,10 +64,11 @@ public class FileChooser extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_home_archivo, container, false);
 
         webView = view.findViewById(R.id.wView);
-
+        setHasOptionsMenu(true);
         //Controlamos desde donde estamos accediendo a la aplicación
         Uri uriDefault = Uri.parse(ClaseSharedPreferences.verDatos(getContext(), "uriDefault"));
         if (!ClaseSharedPreferences.verDatos(getContext(), "uriDefault").equals(" ")) {
@@ -333,5 +337,13 @@ public class FileChooser extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        if(hideMenu){
+            menu.findItem(R.id.ordenar).setVisible(false);
+            hideMenu=false;
+        }
+        super.onPrepareOptionsMenu(menu);
     }
 }

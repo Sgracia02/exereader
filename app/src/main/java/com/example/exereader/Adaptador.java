@@ -64,8 +64,19 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.RecyclerHolder> {
     }
 
     /** Método para cambiar el orden por fecha del array que simula la lista de archivos recientes */
-    public void cambiarOrden(){
-        Collections.sort(lista, (p1,p2) -> p2.getFecha().compareTo(p1.getFecha()));
+    public void cambiarOrden(String tipo){
+        switch(tipo){
+            case "date":
+                Collections.sort(lista, (p1,p2) -> p2.getFecha().compareTo(p1.getFecha()));
+                break;
+            case "author":
+                Collections.sort(lista, (p1,p2) -> p1.getAutor().compareTo(p2.getAutor()));
+                break;
+            case "title":
+                Collections.sort(lista, (p1,p2) -> p1.getTitulo().compareTo(p2.getTitulo()));
+                break;
+        }
+
     }
 
     /* *********** educamadrid ********** */
@@ -150,6 +161,7 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.RecyclerHolder> {
                             //Como hemos encontrado un index para mostrar por pantalla, activamos los item del menú
                             ((MainActivity) v.getContext()).activarMenu();
                             FragmentWebview fragment = new FragmentWebview(index);
+                            fragment.hideMenu=true;
                             FragmentManager fragmentManager = actividad.getSupportFragmentManager();
                             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                             fragmentTransaction.replace(R.id.nav_host_fragment, fragment);

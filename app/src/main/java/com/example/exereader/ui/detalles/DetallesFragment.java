@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebViewClient;
@@ -50,6 +52,7 @@ public class DetallesFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         View root = inflater.inflate(R.layout.fragment_detalles, container, false);
 
         t = root.findViewById(R.id.t);
@@ -220,5 +223,10 @@ public class DetallesFragment extends Fragment {
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.findItem(R.id.ordenar).setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 }
