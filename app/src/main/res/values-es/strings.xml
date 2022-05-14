@@ -46,4 +46,9 @@
     <string name="ordFecha">Fecha</string>
     <string name="ordAutor">Autor</string>
     <string name="ordTitulo">Título</string>
+    <string name="orden">Ordenar</string>
+    <string name="ordFechaAsc">Antiguo-Nuevo</string>
+    <string name="ordFechaDesc">Nuevo-Antiguo</string>
+    <string name="ordTituloAsc">A-Z</string>
+    <string name="ordTituloDesc">Z-A</string>
 </resources>

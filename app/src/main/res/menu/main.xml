@@ -3,18 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
    <item
        android:id="@+id/ordenar"
-       android:title="Ordenar"
+       android:title="@string/orden"
        app:showAsAction="always">
       <menu>
-         <item
-             android:id="@+id/ordFecha"
-             android:title="@string/ordFecha" />
-         <item
-             android:id="@+id/ordAutor"
-             android:title="@string/ordAutor" />
-         <item
-             android:id="@+id/ordTitulo"
-             android:title="@string/ordTitulo" />
+
+
+         <item android:id="@+id/ordFecha" android:title="@string/ordFecha">
+            <menu>
+               <item android:id="@+id/ordFechaAsc" android:title="@string/ordFechaAsc" />
+               <item android:id="@+id/ordFechaDesc" android:title="@string/ordFechaDesc" />
+            </menu>
+         </item>
+
+
+         <item android:id="@+id/ordTitulo" android:title="@string/ordTitulo">
+            <menu>
+               <item android:id="@+id/ordTituloAsc" android:title="@string/ordTituloAsc" />
+               <item android:id="@+id/ordTituloDesc" android:title="@string/ordTituloDesc" />
+            </menu>
+         </item>
+
       </menu>
    </item>
 </menu>

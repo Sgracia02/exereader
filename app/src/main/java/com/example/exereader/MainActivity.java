@@ -1,14 +1,23 @@
 package com.example.exereader;
 
+import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.URLUtil;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -145,5 +154,4 @@ public class MainActivity extends AppCompatActivity{
         return esModoNoche;
     }
     /* *********** educamadrid ********** */
-
 }

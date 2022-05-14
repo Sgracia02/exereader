@@ -66,13 +66,16 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.RecyclerHolder> {
     /** Método para cambiar el orden por fecha del array que simula la lista de archivos recientes */
     public void cambiarOrden(String tipo){
         switch(tipo){
-            case "date":
+            case "fechaAsc":
+                Collections.sort(lista, (p1,p2) -> p1.getFecha().compareTo(p2.getFecha()));
+                break;
+            case "fechaDesc":
                 Collections.sort(lista, (p1,p2) -> p2.getFecha().compareTo(p1.getFecha()));
                 break;
-            case "author":
-                Collections.sort(lista, (p1,p2) -> p1.getAutor().compareTo(p2.getAutor()));
+            case "tituloAsc":
+                Collections.sort(lista, (p1,p2) -> p2.getTitulo().compareTo(p1.getTitulo()));
                 break;
-            case "title":
+            case "tituloDesc":
                 Collections.sort(lista, (p1,p2) -> p1.getTitulo().compareTo(p2.getTitulo()));
                 break;
         }

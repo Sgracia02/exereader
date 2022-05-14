@@ -1,30 +1,51 @@
 package com.example.exereader.ui.home;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 import android.webkit.WebViewFragment;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.exereader.Adaptador;
 import com.example.exereader.ClaseSharedPreferences;
+import com.example.exereader.MainActivity;
 import com.example.exereader.ui.FileChooser;
+import com.example.exereader.ui.FileFromURL;
 import com.example.exereader.ui.FragmentListaVacia;
 import com.example.exereader.Proyectos;
 import com.example.exereader.R;
@@ -52,7 +73,12 @@ public class HomeFragment extends Fragment{
     String titulo="", autor="";
     private static final int REQUEST_PERMISSION_CODE = 5656;
 
+    private boolean editable;
+
     public boolean menuOrdenar;
+
+    private String url = "";
+    private long mFileDownloadedId;
     public HomeFragment() {
     }
 
@@ -90,12 +116,68 @@ public class HomeFragment extends Fragment{
 
         if(lista.size() > 0){
             adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
-            adaptador.cambiarOrden("date");
+            adaptador.cambiarOrden("fechaDesc");
             proyectos.setAdapter(adaptador);
         }
 
-        buttonHome.setOnClickListener(v -> verificarPermisos());
+        buttonHome.setOnClickListener(v -> {
+            modoAccederRecurso();
+        });
 
+
+        /*metodo para borrar elementos de la lista al deslizar*/
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+            //al deslizar un componente de la lista da la opcion de borrar o no, si seleccionamos la opcion no vuelve a cargar la lista por defecto
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                String idioma =  Locale.getDefault().getLanguage();
+                Proyectos proyecto = lista.get(viewHolder.getAdapterPosition());
+                String path = getContext().getExternalFilesDir(null).toString();
+                File carpetaFicheros = new File(path);
+                File[] files = carpetaFicheros.listFiles();
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isDirectory() && proyecto.getNombrecarpeta().equalsIgnoreCase(files[i].getName())) {
+                        int finalI1 = i;
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        if(!idioma.equalsIgnoreCase("es")){
+                            builder.setTitle("Confirmation");
+                            builder.setMessage("Delete the contents of the application. Continue?");
+                            builder.setPositiveButton("Yes", (dialog, which) -> {
+                                borrarApp(files[finalI1]);
+                                ClaseSharedPreferences.eliminarDatos(getContext(), "cambio");
+                                ClaseSharedPreferences.guardarDatos(getContext(),"cambio","no");
+                                ((MainActivity) getActivity()).activarMenu();
+                                lista.remove(viewHolder.getAdapterPosition());
+                            });
+                        }else{
+                            builder.setTitle("Confirmación");
+                            builder.setMessage("Eliminar el contenido de la aplicación. ¿Continuar?");
+                            //Si el usuario pulsa en si, procedemos a borrar el contenido.
+                            builder.setPositiveButton("Sí", (dialog, which) -> {
+                                borrarApp(files[finalI1]);
+                                ClaseSharedPreferences.eliminarDatos(getContext(), "cambio");
+                                ClaseSharedPreferences.guardarDatos(getContext(),"cambio","no");
+                                ((MainActivity) getActivity()).activarMenu();
+                                lista.remove(viewHolder.getAdapterPosition());
+                            });
+                        }
+                        builder.setNegativeButton("No", (dialog, which) -> {
+                            adaptador.cambiarOrden("fechaDesc");
+                            proyectos.setAdapter(adaptador);
+                        });
+                        builder.show();
+                    }
+                }
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(proyectos);
+        //--------------------------------------------------------
         if(!uri.equalsIgnoreCase(" ")){
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -115,13 +197,7 @@ public class HomeFragment extends Fragment{
         }
         return root;
     }
-
-    /*@Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        menu.findItem(R.id.ordenar).setVisible(true);
-        super.onCreateOptionsMenu(menu, inflater);
-    }*/
-
+    //Metodo encargado de mostrar u ocultar el menu de ordenar
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         if(menuOrdenar){
@@ -132,22 +208,24 @@ public class HomeFragment extends Fragment{
         super.onPrepareOptionsMenu(menu);
     }
 
+    //distintas opciones del menu ordenar
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()){
-            case R.id.ordFecha:
-                Toast.makeText(getContext(),"opcion fecha",Toast.LENGTH_LONG).show();
-                adaptador.cambiarOrden("date");
+            case R.id.ordFechaAsc:
+                adaptador.cambiarOrden("fechaAsc");
                 proyectos.setAdapter(adaptador);
                 break;
-            case R.id.ordAutor:
-                Toast.makeText(getContext(),"opcion autor",Toast.LENGTH_LONG).show();
-                adaptador.cambiarOrden("author");
+            case R.id.ordFechaDesc:
+                adaptador.cambiarOrden("fechaDesc");
                 proyectos.setAdapter(adaptador);
                 break;
-            case R.id.ordTitulo:
-                Toast.makeText(getContext(),"opcion titulo",Toast.LENGTH_LONG).show();
-                adaptador.cambiarOrden("title");
+            case R.id.ordTituloAsc:
+                adaptador.cambiarOrden("tituloAsc");
+                proyectos.setAdapter(adaptador);
+                break;
+            case R.id.ordTituloDesc:
+                adaptador.cambiarOrden("tituloDesc");
                 proyectos.setAdapter(adaptador);
                 break;
         }
@@ -303,4 +381,133 @@ public class HomeFragment extends Fragment{
             e.printStackTrace();
         }
     }
+    //------------------------------------------------------------------------------------------------
+    // Metodos encargados para borrar los archivos
+    private void borrarApp(File f) {
+        String idioma =  Locale.getDefault().getLanguage(); // es
+        String path = getContext().getExternalFilesDir(null).toString();
+        File carpetaFicheros = new File(path);
+        File[] files = carpetaFicheros.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            if (files[i].getName().equalsIgnoreCase(f.getName()) || files[i].getName().equalsIgnoreCase(f.getName() + ".zip")) {
+                if(files[i].isDirectory()){
+                    borrarDirectorio(files[i]);
+                }
+                files[i].delete();
+            }
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        if(!idioma.equalsIgnoreCase("es")){
+            builder.setMessage("File successfully deleted.").setTitle("Deleted")
+                    .setPositiveButton("Ok", (dialogInterface, which) -> {
+                        dialogInterface.cancel();
+                        adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
+                        adaptador.cambiarOrden("fechaDesc");
+                        proyectos.setAdapter(adaptador);
+                    });
+        }else {
+            builder.setMessage("Archivo eliminado correctamente.").setTitle("Eliminado")
+                    .setPositiveButton("Ok", (dialogInterface, which) -> {
+                        dialogInterface.cancel();
+                        adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
+                        adaptador.cambiarOrden("fechaDesc");
+                        proyectos.setAdapter(adaptador);
+                    });
+        }
+        builder.show();
+
+    }
+
+    private void borrarDirectorio(File f) {
+        File[] archivos = f.listFiles();
+        for (int i = 0; i < archivos.length; i++) {
+            if (archivos[i].isDirectory()) {
+                borrarDirectorio(archivos[i]);
+            } else {
+                archivos[i].delete();
+            }
+        }
+    }
+    //------------------------------------------------------------------------------------------------
+    // Metodo que muestra por pantalla un Dialog para seleccionar desde donde acceder al archivo
+    private void modoAccederRecurso(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Seleccion de recurso");
+        builder.setMessage("¿Desde donde desea acceder al recurso?");
+        builder.setPositiveButton("Archivo Local", (dialog, which) -> {
+            verificarPermisos();
+        });
+        builder.setNegativeButton("Desde Url", (dialog, which) -> {
+            introducirURL();
+        });
+        builder.show();
+    }
+    // Metodo encargado de mostrar por pantalla un Dialog para introducir la URL del archivo a descargar
+    public void introducirURL(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Introducir URL");
+        builder.setMessage("Por favor introduzca la URL del recurso al que desea acceder");
+
+        final EditText input = new EditText(getContext());
+
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                url = input.getText().toString();
+                descargarArchivo(url);
+            }
+        });
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+    // Metodo encargado de realizar la descarga del archivo
+    private void descargarArchivo(String url){
+        Uri uri = Uri.parse(url);
+        getActivity().registerReceiver(onDownloadComplete, new IntentFilter(
+                DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        String title = URLUtil.guessFileName(url,null,null);
+        request.setTitle(title);
+        String cookie = CookieManager.getInstance().getCookie(url);
+        request.setDescription("Descargando archivo por favor espere...");
+        request.addRequestHeader("cookie",cookie);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,title);
+
+        DownloadManager downloadManager = (DownloadManager)getActivity().getSystemService(getActivity().DOWNLOAD_SERVICE);
+        mFileDownloadedId = downloadManager.enqueue(request);
+
+        Toast.makeText(getContext(),"Decarga comenzada "+ title +" "+mFileDownloadedId,Toast.LENGTH_SHORT).show();
+
+    }
+
+    // Metodo que se ejecuta una vez se haya descargado el archivo, cambia el fragment para despues abrir el archivo descargado.
+    private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            if (id == mFileDownloadedId) {
+                // File received
+                DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                Uri uri = manager.getUriForDownloadedFile(mFileDownloadedId);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                FileFromURL fileFromURL = FileFromURL.newInstance(uri);
+                FileFromURL.hideMenu=true;
+                fragmentTransaction.replace(R.id.nav_host_fragment, fileFromURL);
+                fragmentTransaction.commit();
+            }
+        }
+    };
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+
 }
