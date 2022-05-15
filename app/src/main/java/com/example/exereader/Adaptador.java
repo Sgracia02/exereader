@@ -73,10 +73,10 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.RecyclerHolder> {
                 Collections.sort(lista, (p1,p2) -> p2.getFecha().compareTo(p1.getFecha()));
                 break;
             case "tituloAsc":
-                Collections.sort(lista, (p1,p2) -> p2.getTitulo().compareTo(p1.getTitulo()));
+                Collections.sort(lista, (p1,p2) -> p1.getTitulo().compareTo(p2.getTitulo()));
                 break;
             case "tituloDesc":
-                Collections.sort(lista, (p1,p2) -> p1.getTitulo().compareTo(p2.getTitulo()));
+                Collections.sort(lista, (p1,p2) -> p2.getTitulo().compareTo(p1.getTitulo()));
                 break;
         }
 

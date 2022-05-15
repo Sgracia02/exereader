@@ -79,6 +79,7 @@ public class HomeFragment extends Fragment{
 
     private String url = "";
     private long mFileDownloadedId;
+    String idioma =  Locale.getDefault().getLanguage(); // es
     public HomeFragment() {
     }
 
@@ -384,7 +385,6 @@ public class HomeFragment extends Fragment{
     //------------------------------------------------------------------------------------------------
     // Metodos encargados para borrar los archivos
     private void borrarApp(File f) {
-        String idioma =  Locale.getDefault().getLanguage(); // es
         String path = getContext().getExternalFilesDir(null).toString();
         File carpetaFicheros = new File(path);
         File[] files = carpetaFicheros.listFiles();
@@ -432,35 +432,43 @@ public class HomeFragment extends Fragment{
     // Metodo que muestra por pantalla un Dialog para seleccionar desde donde acceder al archivo
     private void modoAccederRecurso(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Seleccion de recurso");
-        builder.setMessage("¿Desde donde desea acceder al recurso?");
-        builder.setPositiveButton("Archivo Local", (dialog, which) -> {
-            verificarPermisos();
-        });
-        builder.setNegativeButton("Desde Url", (dialog, which) -> {
-            introducirURL();
-        });
+
+            builder.setTitle(R.string.seleccionDeRecurso);
+            builder.setMessage(R.string.seleccionMensaje);
+            builder.setPositiveButton(R.string.archivoLocal, (dialog, which) -> {
+                verificarPermisos();
+            });
+            builder.setNegativeButton(R.string.desdeURL, (dialog, which) -> {
+                introducirURL();
+            });
         builder.show();
     }
     // Metodo encargado de mostrar por pantalla un Dialog para introducir la URL del archivo a descargar
     public void introducirURL(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Introducir URL");
-        builder.setMessage("Por favor introduzca la URL del recurso al que desea acceder");
+
+        builder.setTitle(R.string.introducirUrl);
+        builder.setMessage(R.string.urlMensaje);
 
         final EditText input = new EditText(getContext());
 
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.aceptar, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                url = input.getText().toString();
-                descargarArchivo(url);
+                try {
+                    url = input.getText().toString();
+                    descargarArchivo(url);
+                }catch (Exception e){
+                    Toast.makeText(getContext(),"Error al introducir la url",Toast.LENGTH_SHORT).show();
+                }
+
+
             }
         });
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.cancelar, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -485,7 +493,7 @@ public class HomeFragment extends Fragment{
         DownloadManager downloadManager = (DownloadManager)getActivity().getSystemService(getActivity().DOWNLOAD_SERVICE);
         mFileDownloadedId = downloadManager.enqueue(request);
 
-        Toast.makeText(getContext(),"Decarga comenzada "+ title +" "+mFileDownloadedId,Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(),"Comenzando descarga ",Toast.LENGTH_SHORT).show();
 
     }
 
