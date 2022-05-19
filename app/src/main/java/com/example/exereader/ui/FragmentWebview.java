@@ -157,11 +157,6 @@ public class FragmentWebview extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-   /* @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.findItem(R.id.ordenar).setVisible(false);
-        super.onCreateOptionsMenu(menu, inflater);
-    }*/
 
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {

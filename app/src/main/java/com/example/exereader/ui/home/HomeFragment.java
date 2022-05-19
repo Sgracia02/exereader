@@ -76,6 +76,7 @@ public class HomeFragment extends Fragment{
     private boolean editable;
 
     public boolean menuOrdenar;
+    private String tipoOrdenar ="fechaDesc";
 
     private String url = "";
     private long mFileDownloadedId;
@@ -117,7 +118,7 @@ public class HomeFragment extends Fragment{
 
         if(lista.size() > 0){
             adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
-            adaptador.cambiarOrden("fechaDesc");
+            adaptador.cambiarOrden(tipoOrdenar);
             proyectos.setAdapter(adaptador);
         }
 
@@ -127,12 +128,16 @@ public class HomeFragment extends Fragment{
 
 
         /*metodo para borrar elementos de la lista al deslizar*/
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
+                0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
-            //al deslizar un componente de la lista da la opcion de borrar o no, si seleccionamos la opcion no vuelve a cargar la lista por defecto
+            //al deslizar un componente de la lista da la opcion de borrar o no,
+            // si seleccionamos la opcion no o pulsamos fuera del Dialog, vuelve a cargar la lista como estaba anteriormente
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 String idioma =  Locale.getDefault().getLanguage();
@@ -140,6 +145,7 @@ public class HomeFragment extends Fragment{
                 String path = getContext().getExternalFilesDir(null).toString();
                 File carpetaFicheros = new File(path);
                 File[] files = carpetaFicheros.listFiles();
+                int pos = viewHolder.getAdapterPosition();
                 for (int i = 0; i < files.length; i++) {
                     if (files[i].isDirectory() && proyecto.getNombrecarpeta().equalsIgnoreCase(files[i].getName())) {
                         int finalI1 = i;
@@ -152,7 +158,10 @@ public class HomeFragment extends Fragment{
                                 ClaseSharedPreferences.eliminarDatos(getContext(), "cambio");
                                 ClaseSharedPreferences.guardarDatos(getContext(),"cambio","no");
                                 ((MainActivity) getActivity()).activarMenu();
-                                lista.remove(viewHolder.getAdapterPosition());
+                                lista.remove(pos);
+                                adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
+                                adaptador.cambiarOrden(tipoOrdenar);
+                                proyectos.setAdapter(adaptador);
                             });
                         }else{
                             builder.setTitle("Confirmación");
@@ -163,16 +172,19 @@ public class HomeFragment extends Fragment{
                                 ClaseSharedPreferences.eliminarDatos(getContext(), "cambio");
                                 ClaseSharedPreferences.guardarDatos(getContext(),"cambio","no");
                                 ((MainActivity) getActivity()).activarMenu();
-                                lista.remove(viewHolder.getAdapterPosition());
+                                lista.remove(pos);
+                                adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
+                                adaptador.cambiarOrden(tipoOrdenar);
+                                proyectos.setAdapter(adaptador);
                             });
                         }
                         builder.setNegativeButton("No", (dialog, which) -> {
-                            adaptador.cambiarOrden("fechaDesc");
                             proyectos.setAdapter(adaptador);
                         });
                         builder.show();
                     }
                 }
+                proyectos.setAdapter(adaptador);
             }
         };
 
@@ -214,19 +226,23 @@ public class HomeFragment extends Fragment{
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()){
             case R.id.ordFechaAsc:
-                adaptador.cambiarOrden("fechaAsc");
+                tipoOrdenar="fechaAsc";
+                adaptador.cambiarOrden(tipoOrdenar);
                 proyectos.setAdapter(adaptador);
                 break;
             case R.id.ordFechaDesc:
-                adaptador.cambiarOrden("fechaDesc");
+                tipoOrdenar="fechaDesc";
+                adaptador.cambiarOrden(tipoOrdenar);
                 proyectos.setAdapter(adaptador);
                 break;
             case R.id.ordTituloAsc:
-                adaptador.cambiarOrden("tituloAsc");
+                tipoOrdenar="tituloAsc";
+                adaptador.cambiarOrden(tipoOrdenar);
                 proyectos.setAdapter(adaptador);
                 break;
             case R.id.ordTituloDesc:
-                adaptador.cambiarOrden("tituloDesc");
+                tipoOrdenar="tituloDesc";
+                adaptador.cambiarOrden(tipoOrdenar);
                 proyectos.setAdapter(adaptador);
                 break;
         }
@@ -401,17 +417,11 @@ public class HomeFragment extends Fragment{
             builder.setMessage("File successfully deleted.").setTitle("Deleted")
                     .setPositiveButton("Ok", (dialogInterface, which) -> {
                         dialogInterface.cancel();
-                        adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
-                        adaptador.cambiarOrden("fechaDesc");
-                        proyectos.setAdapter(adaptador);
                     });
         }else {
             builder.setMessage("Archivo eliminado correctamente.").setTitle("Eliminado")
                     .setPositiveButton("Ok", (dialogInterface, which) -> {
                         dialogInterface.cancel();
-                        adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
-                        adaptador.cambiarOrden("fechaDesc");
-                        proyectos.setAdapter(adaptador);
                     });
         }
         builder.show();

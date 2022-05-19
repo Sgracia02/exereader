@@ -164,7 +164,7 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.RecyclerHolder> {
                             //Como hemos encontrado un index para mostrar por pantalla, activamos los item del menú
                             ((MainActivity) v.getContext()).activarMenu();
                             FragmentWebview fragment = new FragmentWebview(index);
-                            fragment.hideMenu=true;
+                           // fragment.hideMenu=true;
                             FragmentManager fragmentManager = actividad.getSupportFragmentManager();
                             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                             fragmentTransaction.replace(R.id.nav_host_fragment, fragment);

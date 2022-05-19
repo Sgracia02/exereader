@@ -10,8 +10,10 @@
 
          <item android:id="@+id/ordFecha" android:title="@string/ordFecha">
             <menu>
+               <item
+                   android:id="@+id/ordFechaDesc"
+                   android:title="@string/ordFechaDesc" />
                <item android:id="@+id/ordFechaAsc" android:title="@string/ordFechaAsc" />
-               <item android:id="@+id/ordFechaDesc" android:title="@string/ordFechaDesc" />
             </menu>
          </item>
 
