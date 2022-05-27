@@ -76,7 +76,6 @@ public class HomeFragment extends Fragment{
     private boolean editable;
 
     public boolean menuOrdenar;
-    private String tipoOrdenar ="fechaDesc";
 
     private String url = "";
     private long mFileDownloadedId;
@@ -118,7 +117,7 @@ public class HomeFragment extends Fragment{
 
         if(lista.size() > 0){
             adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
-            adaptador.cambiarOrden(tipoOrdenar);
+            adaptador.cambiarOrden("fechaDesc");
             proyectos.setAdapter(adaptador);
         }
 
@@ -159,8 +158,6 @@ public class HomeFragment extends Fragment{
                                 ClaseSharedPreferences.guardarDatos(getContext(),"cambio","no");
                                 ((MainActivity) getActivity()).activarMenu();
                                 lista.remove(pos);
-                                adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
-                                adaptador.cambiarOrden(tipoOrdenar);
                                 proyectos.setAdapter(adaptador);
                             });
                         }else{
@@ -173,8 +170,6 @@ public class HomeFragment extends Fragment{
                                 ClaseSharedPreferences.guardarDatos(getContext(),"cambio","no");
                                 ((MainActivity) getActivity()).activarMenu();
                                 lista.remove(pos);
-                                adaptador = new Adaptador(lista, ((AppCompatActivity) getActivity()));
-                                adaptador.cambiarOrden(tipoOrdenar);
                                 proyectos.setAdapter(adaptador);
                             });
                         }
@@ -226,23 +221,19 @@ public class HomeFragment extends Fragment{
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()){
             case R.id.ordFechaAsc:
-                tipoOrdenar="fechaAsc";
-                adaptador.cambiarOrden(tipoOrdenar);
+                adaptador.cambiarOrden("fechaAsc");
                 proyectos.setAdapter(adaptador);
                 break;
             case R.id.ordFechaDesc:
-                tipoOrdenar="fechaDesc";
-                adaptador.cambiarOrden(tipoOrdenar);
+                adaptador.cambiarOrden("fechaDesc");
                 proyectos.setAdapter(adaptador);
                 break;
             case R.id.ordTituloAsc:
-                tipoOrdenar="tituloAsc";
-                adaptador.cambiarOrden(tipoOrdenar);
+                adaptador.cambiarOrden("tituloAsc");
                 proyectos.setAdapter(adaptador);
                 break;
             case R.id.ordTituloDesc:
-                tipoOrdenar="tituloDesc";
-                adaptador.cambiarOrden(tipoOrdenar);
+                adaptador.cambiarOrden("tituloDesc");
                 proyectos.setAdapter(adaptador);
                 break;
         }
@@ -425,7 +416,6 @@ public class HomeFragment extends Fragment{
                     });
         }
         builder.show();
-
     }
 
     private void borrarDirectorio(File f) {
@@ -442,48 +432,75 @@ public class HomeFragment extends Fragment{
     // Metodo que muestra por pantalla un Dialog para seleccionar desde donde acceder al archivo
     private void modoAccederRecurso(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-            builder.setTitle(R.string.seleccionDeRecurso);
-            builder.setMessage(R.string.seleccionMensaje);
-            builder.setPositiveButton(R.string.archivoLocal, (dialog, which) -> {
+        if(!idioma.equalsIgnoreCase("es")){
+            builder.setTitle("Resource selector");
+            builder.setMessage("from where you want to access the file?");
+            builder.setPositiveButton("Local file", (dialog, which) -> {
                 verificarPermisos();
             });
-            builder.setNegativeButton(R.string.desdeURL, (dialog, which) -> {
+            builder.setNegativeButton("From Url", (dialog, which) -> {
                 introducirURL();
             });
+        }else{
+            builder.setTitle("Seleccion de recurso");
+            builder.setMessage("¿Desde donde desea acceder al recurso?");
+            builder.setPositiveButton("Archivo Local", (dialog, which) -> {
+                verificarPermisos();
+            });
+            builder.setNegativeButton("Desde Url", (dialog, which) -> {
+                introducirURL();
+            });
+        }
         builder.show();
     }
     // Metodo encargado de mostrar por pantalla un Dialog para introducir la URL del archivo a descargar
     public void introducirURL(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-        builder.setTitle(R.string.introducirUrl);
-        builder.setMessage(R.string.urlMensaje);
-
         final EditText input = new EditText(getContext());
-
         input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        builder.setPositiveButton(R.string.aceptar, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    url = input.getText().toString();
-                    descargarArchivo(url);
-                }catch (Exception e){
-                    Toast.makeText(getContext(),"Error al introducir la url",Toast.LENGTH_SHORT).show();
+        if(!idioma.equalsIgnoreCase("es")){
+            builder.setTitle("Enter URL");
+            builder.setMessage("Please enter the URL of the resource you want to access");
+            builder.setView(input);
+            builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        url = input.getText().toString();
+                        descargarArchivo(url);
+                    }catch (Exception e){
+                        Toast.makeText(getContext(),"Error entering the url",Toast.LENGTH_SHORT).show();
+                    }
                 }
-
-
-            }
-        });
-        builder.setNegativeButton(R.string.cancelar, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+        }else{
+            builder.setTitle("Introducir URL");
+            builder.setMessage("Por favor introduzca la URL del recurso al que desea acceder");
+            builder.setView(input);
+            builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        url = input.getText().toString();
+                        descargarArchivo(url);
+                    }catch (Exception e){
+                        Toast.makeText(getContext(),"Error al introducir la url",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+        }
         builder.show();
     }
     // Metodo encargado de realizar la descarga del archivo
@@ -495,16 +512,22 @@ public class HomeFragment extends Fragment{
         String title = URLUtil.guessFileName(url,null,null);
         request.setTitle(title);
         String cookie = CookieManager.getInstance().getCookie(url);
-        request.setDescription("Descargando archivo por favor espere...");
-        request.addRequestHeader("cookie",cookie);
+        if(!idioma.equalsIgnoreCase("es")){
+            request.setDescription("Downloading file");
+            request.addRequestHeader("cookie",cookie);
+        }else{
+            request.setDescription("Descargando archivo");
+            request.addRequestHeader("cookie",cookie);
+        }
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,title);
-
         DownloadManager downloadManager = (DownloadManager)getActivity().getSystemService(getActivity().DOWNLOAD_SERVICE);
         mFileDownloadedId = downloadManager.enqueue(request);
-
-        Toast.makeText(getContext(),"Comenzando descarga ",Toast.LENGTH_SHORT).show();
-
+        if(!idioma.equalsIgnoreCase("es")){
+            Toast.makeText(getContext(),"Starting download",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(getContext(),"Comenzando descarga",Toast.LENGTH_SHORT).show();
+        }
     }
 
     // Metodo que se ejecuta una vez se haya descargado el archivo, cambia el fragment para despues abrir el archivo descargado.
@@ -513,7 +536,7 @@ public class HomeFragment extends Fragment{
         public void onReceive(Context context, Intent intent) {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             if (id == mFileDownloadedId) {
-                // File received
+                // Archivo recibido
                 DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
                 Uri uri = manager.getUriForDownloadedFile(mFileDownloadedId);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

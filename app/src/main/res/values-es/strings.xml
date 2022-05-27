@@ -51,13 +51,4 @@
     <string name="ordFechaDesc">Nuevo-Antiguo</string>
     <string name="ordTituloAsc">A-Z</string>
     <string name="ordTituloDesc">Z-A</string>
-
-    <string name="seleccionDeRecurso">Seleccion de recurso</string>
-    <string name="seleccionMensaje">¿Desde donde desea acceder al recurso?</string>
-    <string name="archivoLocal">Archivo Local</string>
-    <string name="desdeURL">Desde Url</string>
-    <string name="aceptar">Aceptar</string>
-    <string name="cancelar">Cancelar</string>
-    <string name="introducirUrl">Introducir URL</string>
-    <string name="urlMensaje">Por favor introduzca la URL del recurso al que desea acceder</string>
 </resources>

@@ -63,7 +63,7 @@ public class Adaptador extends RecyclerView.Adapter<Adaptador.RecyclerHolder> {
         return new RecyclerHolder(view);
     }
 
-    /** Método para cambiar el orden por fecha del array que simula la lista de archivos recientes */
+    /** Método para cambiar el orden por del array que segun el parametro que se pase */
     public void cambiarOrden(String tipo){
         switch(tipo){
             case "fechaAsc":
