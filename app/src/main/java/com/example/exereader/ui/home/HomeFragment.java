@@ -528,12 +528,18 @@ public class HomeFragment extends Fragment{
         }else{
             Toast.makeText(getContext(),"Comenzando descarga",Toast.LENGTH_SHORT).show();
         }
+
+        this.proyectos.setVisibility(View.INVISIBLE);
+
+        ((MainActivity) getActivity()).ocultarMenu();
+
     }
 
     // Metodo que se ejecuta una vez se haya descargado el archivo, cambia el fragment para despues abrir el archivo descargado.
     private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            ((MainActivity) getActivity()).mostrarMenu();
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             if (id == mFileDownloadedId) {
                 // Archivo recibido

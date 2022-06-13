@@ -154,4 +154,31 @@ public class MainActivity extends AppCompatActivity{
         return esModoNoche;
     }
     /* *********** educamadrid ********** */
+
+    public void ocultarMenu(){
+        Menu menuNav=navigationView.getMenu();
+        MenuItem home = menuNav.findItem(R.id.nav_home);
+        MenuItem ayuda = menuNav.findItem(R.id.nav_ayuda);
+        MenuItem creditos = menuNav.findItem(R.id.nav_creditos);
+        MenuItem sugerencias = menuNav.findItem(R.id.nav_sugerencias);
+
+        home.setEnabled(false);
+        ayuda.setEnabled(false);
+        creditos.setEnabled(false);
+        sugerencias.setEnabled(false);
+    }
+
+    public void mostrarMenu(){
+        Menu menuNav=navigationView.getMenu();
+        MenuItem home = menuNav.findItem(R.id.nav_home);
+        MenuItem ayuda = menuNav.findItem(R.id.nav_ayuda);
+        MenuItem creditos = menuNav.findItem(R.id.nav_creditos);
+        MenuItem sugerencias = menuNav.findItem(R.id.nav_sugerencias);
+
+        home.setEnabled(true);
+        ayuda.setEnabled(true);
+        creditos.setEnabled(true);
+        sugerencias.setEnabled(true);
+    }
+
 }
